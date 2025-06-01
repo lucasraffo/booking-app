@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -18,7 +20,7 @@ export default function BookingApp() {
   const [date, setDate] = useState("")
   const [time, setTime] = useState("")
   const [note, setNote] = useState("")
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const services = [
     "Limpeza Ar-condicionado",
@@ -30,11 +32,24 @@ export default function BookingApp() {
   ]
 
   const timeSlots = [
-    "08:00", "08:30", "09:00", "09:30",
-    "10:00", "10:30", "11:00", "11:30",
-    "14:00", "14:30", "15:00", "15:30",
-    "16:00", "16:30", "17:00", "17:30",
-    "18:00", "18:30",
+    "08:00",
+    "08:30",
+    "09:00",
+    "09:30",
+    "10:00",
+    "10:30",
+    "11:00",
+    "11:30",
+    "14:00",
+    "14:30",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30",
+    "17:00",
+    "17:30",
+    "18:00",
+    "18:30",
   ]
 
   const validateForm = () => {
@@ -59,6 +74,13 @@ export default function BookingApp() {
       if (selectedDate < today) {
         newErrors.date = "Data não pode ser no passado"
       }
+      if (!isWeekday(date)) {
+        newErrors.date = "Agendamentos são permitidos apenas de segunda a sexta"
+      }
+    }
+
+    if (date && time && !isTimeAvailable(date, time)) {
+      newErrors.time = "Este horário já está ocupado. Escolha outro."
     }
 
     setErrors(newErrors)
@@ -111,13 +133,19 @@ export default function BookingApp() {
     setErrors({})
   }
 
-  const isFormValid = name && phone && service && date && time && Object.keys(errors).length === 0
+  const isFormValid =
+    name.trim() &&
+    phone.trim() &&
+    service &&
+    date &&
+    time &&
+    Object.keys(errors).length === 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
-      <div className="max-w-lg mx-auto sm:px-8">
-        <Card className="shadow-xl rounded-xl">
-          <CardHeader className="text-center bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-t-xl drop-shadow">
+      <div className="max-w-md mx-auto">
+        <Card className="shadow-lg">
+          <CardHeader className="text-center bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
             <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
               <Calendar className="h-6 w-6" />
               Agendamento de Serviço
@@ -128,42 +156,42 @@ export default function BookingApp() {
           <CardContent className="space-y-6 p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center gap-1">
+                <Label htmlFor="name" className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  Nome Completo <span className="text-red-500">*</span>
+                  Nome Completo
                 </Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Digite seu nome completo"
-                  className={`py-2 px-3 shadow-sm ${errors.name ? "border-red-500" : ""}`}
+                  className={errors.name ? "border-red-500" : ""}
                 />
                 {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="flex items-center gap-1">
+                <Label htmlFor="phone" className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
-                  Telefone <span className="text-red-500">*</span>
+                  Telefone
                 </Label>
                 <Input
                   id="phone"
                   value={phone}
                   onChange={handlePhoneChange}
                   placeholder="(47) 99999-9999"
-                  className={`py-2 px-3 shadow-sm ${errors.phone ? "border-red-500" : ""}`}
+                  className={errors.phone ? "border-red-500" : ""}
                 />
                 {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label className="flex items-center gap-1">
+                <Label className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4" />
-                  Serviço Desejado <span className="text-red-500">*</span>
+                  Serviço Desejado
                 </Label>
                 <Select value={service} onValueChange={setService}>
-                  <SelectTrigger className={`shadow-sm ${errors.service ? "border-red-500" : ""}`}>
+                  <SelectTrigger className={errors.service ? "border-red-500" : ""}>
                     <SelectValue placeholder="Selecione o serviço" />
                   </SelectTrigger>
                   <SelectContent>
@@ -177,11 +205,11 @@ export default function BookingApp() {
                 {errors.service && <p className="text-sm text-red-500">{errors.service}</p>}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="date" className="flex items-center gap-1">
+                  <Label htmlFor="date" className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    Data <span className="text-red-500">*</span>
+                    Data
                   </Label>
                   <Input
                     id="date"
@@ -189,18 +217,18 @@ export default function BookingApp() {
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     min={new Date().toISOString().split("T")[0]}
-                    className={`shadow-sm ${errors.date ? "border-red-500" : ""}`}
+                    className={errors.date ? "border-red-500" : ""}
                   />
                   {errors.date && <p className="text-sm text-red-500">{errors.date}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-1">
+                  <Label className="flex items-center gap-2">
                     <Clock className="h-4 w-4" />
-                    Horário <span className="text-red-500">*</span>
+                    Horário
                   </Label>
                   <Select value={time} onValueChange={setTime}>
-                    <SelectTrigger className={`shadow-sm ${errors.time ? "border-red-500" : ""}`}>
+                    <SelectTrigger className={errors.time ? "border-red-500" : ""}>
                       <SelectValue placeholder="Horário" />
                     </SelectTrigger>
                     <SelectContent>
@@ -223,7 +251,6 @@ export default function BookingApp() {
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Alguma observação especial?"
                   rows={3}
-                  className="py-2 px-3 shadow-sm"
                 />
               </div>
 
@@ -237,25 +264,10 @@ export default function BookingApp() {
               )}
 
               <div className="flex gap-3">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        type="submit"
-                        className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50"
-                        disabled={!isFormValid}
-                      >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Enviar WhatsApp
-                      </Button>
-                    </TooltipTrigger>
-                    {!isFormValid && (
-                      <TooltipContent>
-                        Preencha todos os campos obrigatórios corretamente
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
+                <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700" disabled={!isFormValid}>
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Enviar WhatsApp
+                </Button>
 
                 <Button type="button" variant="outline" onClick={resetForm} className="px-4">
                   Limpar
@@ -265,9 +277,8 @@ export default function BookingApp() {
           </CardContent>
         </Card>
 
-        <div className="mt-4 text-center text-sm text-muted-foreground flex items-center justify-center gap-1">
-          <MessageCircle className="w-4 h-4" />
-          Você será redirecionado para o WhatsApp
+        <div className="mt-4 text-center text-sm text-gray-600">
+          <p>📱 Você será redirecionado para o WhatsApp</p>
         </div>
       </div>
     </div>
