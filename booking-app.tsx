@@ -124,7 +124,7 @@ export default function BookingApp() {
   const getWhatsappLink = () => {
     if (!validateForm()) return "#"
     const message = encodeURIComponent(formatMessage())
-    const phoneNumber = "5547996564441"
+    const phoneNumber = "554796960063"
     return `https://wa.me/${phoneNumber}?text=${message}`
   }
 
