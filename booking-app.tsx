@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Phone, Clock, Wrench, MessageCircle, User } from "lucide-react"
+import { Calendar, Phone, Clock, Wrench, MessageCircle, User, MapPin } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 
 interface Appointment {
@@ -16,6 +16,15 @@ interface Appointment {
   time: string
   name: string
   phone: string
+  address: {
+    cep: string
+    street: string
+    number: string
+    complement: string
+    neighborhood: string
+    city: string
+    state: string
+  }
   service: string
   observations?: string
 }
@@ -36,6 +45,15 @@ export default function ServiceScheduling() {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    address: {
+      cep: "",
+      street: "",
+      number: "",
+      complement: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+    },
     date: "",
     time: "",
     service: "",
@@ -90,9 +108,30 @@ export default function ServiceScheduling() {
     }
   }
 
+  const handleAddressChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        [field]: value,
+      },
+    }))
+  }
+
   const isFormValid = () => {
     return (
-      formData.name && formData.phone && formData.date && formData.time && formData.service && isWeekday(formData.date)
+      formData.name &&
+      formData.phone &&
+      formData.date &&
+      formData.time &&
+      formData.service &&
+      formData.address.cep &&
+      formData.address.street &&
+      formData.address.number &&
+      formData.address.neighborhood &&
+      formData.address.city &&
+      formData.address.state &&
+      isWeekday(formData.date)
     )
   }
 
@@ -125,6 +164,15 @@ export default function ServiceScheduling() {
       time: formData.time,
       name: formData.name,
       phone: formData.phone,
+      address: {
+        cep: formData.address.cep,
+        street: formData.address.street,
+        number: formData.address.number,
+        complement: formData.address.complement,
+        neighborhood: formData.address.neighborhood,
+        city: formData.address.city,
+        state: formData.address.state,
+      },
       service: formData.service,
       observations: formData.observations,
     }
@@ -141,6 +189,10 @@ export default function ServiceScheduling() {
       `🕐 *Horário:* ${formData.time}\n` +
       `👤 *Nome:* ${formData.name}\n` +
       `📞 *Telefone:* ${formData.phone}\n` +
+      `📍 *Endereço:*\n` +
+      `${formData.address.street}, ${formData.address.number}${formData.address.complement ? `, ${formData.address.complement}` : ""}\n` +
+      `${formData.address.neighborhood} - ${formData.address.city}/${formData.address.state}\n` +
+      `CEP: ${formData.address.cep}\n` +
       `🔧 *Serviço:* ${formData.service}\n` +
       `${formData.observations ? `📝 *Observações:* ${formData.observations}\n` : ""}\n` +
       `Gostaria de confirmar este agendamento.`
@@ -152,6 +204,15 @@ export default function ServiceScheduling() {
     setFormData({
       name: "",
       phone: "",
+      address: {
+        cep: "",
+        street: "",
+        number: "",
+        complement: "",
+        neighborhood: "",
+        city: "",
+        state: "",
+      },
       date: "",
       time: "",
       service: "",
@@ -181,10 +242,35 @@ export default function ServiceScheduling() {
             {/* Illustration */}
             <div className="flex justify-center mb-8">
               <div className="relative">
-                <div className="w-48 h-32 bg-gradient-to-br from-blue-100 to-teal-100 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Wrench className="h-16 w-16 text-blue-600 mx-auto mb-2" />
-                    <p className="text-sm text-blue-600 font-medium">Técnico Especializado</p>
+                <div className="w-64 h-48 bg-gradient-to-br from-blue-100 to-teal-100 rounded-lg flex items-center justify-center p-4">
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <div className="relative">
+                        {/* Ar condicionado */}
+                        <div className="w-32 h-16 bg-white rounded-md shadow-md flex items-center justify-center border-2 border-blue-200">
+                          <div className="w-28 h-12 bg-blue-50 rounded flex items-center justify-center">
+                            <div className="flex space-x-1">
+                              {/* Símbolos de refrigeração */}
+                              <div className="text-blue-500 text-xs">❄️</div>
+                              <div className="text-blue-500 text-xs">❄️</div>
+                              <div className="text-blue-500 text-xs">❄️</div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Ondas de ar frio */}
+                        <div className="absolute -bottom-4 left-0 right-0 flex justify-center">
+                          <div className="flex space-x-2">
+                            <div className="w-6 h-3 bg-blue-200 rounded-full opacity-70"></div>
+                            <div className="w-6 h-3 bg-blue-200 rounded-full opacity-80"></div>
+                            <div className="w-6 h-3 bg-blue-200 rounded-full opacity-90"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center mt-4">
+                      <Wrench className="h-5 w-5 text-blue-600 mr-2" />
+                      <p className="text-sm text-blue-600 font-medium">Refrigeração & Climatização</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -220,6 +306,103 @@ export default function ServiceScheduling() {
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     className="h-12 text-lg"
                   />
+                </div>
+
+                {/* Endereço */}
+                <div className="space-y-4">
+                  <Label className="text-lg font-semibold flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Endereço do Serviço
+                  </Label>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="cep">CEP</Label>
+                      <Input
+                        id="cep"
+                        placeholder="00000-000"
+                        value={formData.address.cep}
+                        onChange={(e) => handleAddressChange("cep", e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="state">Estado</Label>
+                      <Select
+                        value={formData.address.state}
+                        onValueChange={(value) => handleAddressChange("state", value)}
+                      >
+                        <SelectTrigger className="h-12">
+                          <SelectValue placeholder="Selecione o estado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SC">Santa Catarina</SelectItem>
+                          <SelectItem value="PR">Paraná</SelectItem>
+                          <SelectItem value="RS">Rio Grande do Sul</SelectItem>
+                          <SelectItem value="SP">São Paulo</SelectItem>
+                          <SelectItem value="RJ">Rio de Janeiro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="street">Rua/Avenida</Label>
+                    <Input
+                      id="street"
+                      placeholder="Nome da rua"
+                      value={formData.address.street}
+                      onChange={(e) => handleAddressChange("street", e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="number">Número</Label>
+                      <Input
+                        id="number"
+                        placeholder="123"
+                        value={formData.address.number}
+                        onChange={(e) => handleAddressChange("number", e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="complement">Complemento</Label>
+                      <Input
+                        id="complement"
+                        placeholder="Apto, casa, etc."
+                        value={formData.address.complement}
+                        onChange={(e) => handleAddressChange("complement", e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="neighborhood">Bairro</Label>
+                      <Input
+                        id="neighborhood"
+                        placeholder="Nome do bairro"
+                        value={formData.address.neighborhood}
+                        onChange={(e) => handleAddressChange("neighborhood", e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="city">Cidade</Label>
+                    <Input
+                      id="city"
+                      placeholder="Nome da cidade"
+                      value={formData.address.city}
+                      onChange={(e) => handleAddressChange("city", e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
