@@ -31,12 +31,10 @@ interface Appointment {
 
 const services = [
   "Instalação de Ar Condicionado",
-  "Manutenção de Ar Condicionado",
   "Reparo de Ar Condicionado",
   "Limpeza de Ar Condicionado",
-  "Instalação Elétrica",
-  "Reparo Elétrico",
   "Manutenção Preventiva",
+  "Conserto Micro-ondas",
 ]
 
 const timeSlots = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
@@ -184,7 +182,7 @@ export default function ServiceScheduling() {
 
     // Generate WhatsApp message
     const message =
-      `*Agendamento de Serviço*\n\n` +
+      `*Meu nome é *${name}* e gostaria de agendar um serviço.*\n\n` +
       `📅 *Data:* ${new Date(formData.date).toLocaleDateString("pt-BR")}\n` +
       `🕐 *Horário:* ${formData.time}\n` +
       `👤 *Nome:* ${formData.name}\n` +
@@ -195,7 +193,7 @@ export default function ServiceScheduling() {
       `CEP: ${formData.address.cep}\n` +
       `🔧 *Serviço:* ${formData.service}\n` +
       `${formData.observations ? `📝 *Observações:* ${formData.observations}\n` : ""}\n` +
-      `Gostaria de confirmar este agendamento.`
+      `Aguardo confirmação😊`
 
     const whatsappUrl = `https://wa.me/5547996960063?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
