@@ -33,9 +33,8 @@ const services = [
   "Instalação de Ar Condicionado",
   "Manutenção de Ar Condicionado",
   "Reparo de Ar Condicionado",
-  "Limpeza de Ar Condicionado",
-  "Conserto de Micro-ondas",
-  "Conserto de Geladeira",
+  "Reparo de Geladeira",
+  "Reparo de Microondas",
 ]
 
 const timeSlots = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
@@ -183,7 +182,7 @@ export default function ServiceScheduling() {
 
     // Generate WhatsApp message
     const message =
-      `🔧 AGENDAMENTO DE SERVIÇO - ${formData.name.toUpperCase()}\n\n` +
+      `*🔧 AGENDAMENTO DE SERVIÇO - ${formData.name.toUpperCase()}*\n\n` +
       `📅 *Data:* ${new Date(formData.date + "T00:00:00").toLocaleDateString("pt-BR", {
         weekday: "long",
         year: "numeric",
@@ -247,34 +246,57 @@ export default function ServiceScheduling() {
             {/* Illustration */}
             <div className="flex justify-center mb-8">
               <div className="relative">
-                <div className="w-64 h-48 bg-gradient-to-br from-blue-100 to-teal-100 rounded-lg flex items-center justify-center p-4">
+                <div className="w-80 h-56 bg-gradient-to-br from-blue-100 to-teal-100 rounded-lg flex items-center justify-center p-4">
                   <div className="flex flex-col items-center">
-                    <div className="flex items-center justify-center mb-2">
+                    <div className="flex items-center justify-center space-x-4 mb-4">
+                      {/* Ar Condicionado */}
                       <div className="relative">
-                        {/* Ar condicionado */}
-                        <div className="w-32 h-16 bg-white rounded-md shadow-md flex items-center justify-center border-2 border-blue-200">
-                          <div className="w-28 h-12 bg-blue-50 rounded flex items-center justify-center">
+                        <div className="w-24 h-12 bg-white rounded-md shadow-md flex items-center justify-center border-2 border-blue-200">
+                          <div className="w-20 h-8 bg-blue-50 rounded flex items-center justify-center">
                             <div className="flex space-x-1">
-                              {/* Símbolos de refrigeração */}
-                              <div className="text-blue-500 text-xs">❄️</div>
                               <div className="text-blue-500 text-xs">❄️</div>
                               <div className="text-blue-500 text-xs">❄️</div>
                             </div>
                           </div>
                         </div>
                         {/* Ondas de ar frio */}
-                        <div className="absolute -bottom-4 left-0 right-0 flex justify-center">
-                          <div className="flex space-x-2">
-                            <div className="w-6 h-3 bg-blue-200 rounded-full opacity-70"></div>
-                            <div className="w-6 h-3 bg-blue-200 rounded-full opacity-80"></div>
-                            <div className="w-6 h-3 bg-blue-200 rounded-full opacity-90"></div>
+                        <div className="absolute -bottom-2 left-0 right-0 flex justify-center">
+                          <div className="flex space-x-1">
+                            <div className="w-4 h-2 bg-blue-200 rounded-full opacity-70"></div>
+                            <div className="w-4 h-2 bg-blue-200 rounded-full opacity-80"></div>
+                            <div className="w-4 h-2 bg-blue-200 rounded-full opacity-90"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Geladeira */}
+                      <div className="relative">
+                        <div className="w-16 h-20 bg-white rounded-md shadow-md border-2 border-gray-200 flex flex-col">
+                          <div className="w-full h-8 bg-gray-50 rounded-t border-b border-gray-200 flex items-center justify-center">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                          </div>
+                          <div className="w-full h-12 bg-blue-50 rounded-b flex items-center justify-center">
+                            <div className="text-blue-500 text-xs">🧊</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Microondas */}
+                      <div className="relative">
+                        <div className="w-20 h-12 bg-white rounded-md shadow-md border-2 border-gray-200 flex items-center justify-center">
+                          <div className="w-16 h-8 bg-gray-900 rounded flex items-center justify-center relative">
+                            <div className="text-green-400 text-xs">⚡</div>
+                            <div className="absolute top-0 right-1 w-1 h-1 bg-red-500 rounded-full"></div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center mt-4">
+
+                    <div className="flex items-center mt-2">
                       <Wrench className="h-5 w-5 text-blue-600 mr-2" />
-                      <p className="text-sm text-blue-600 font-medium">Refrigeração & Climatização</p>
+                      <p className="text-sm text-blue-600 font-medium text-center">
+                        Refrigeração, Climatização & Eletrodomésticos
+                      </p>
                     </div>
                   </div>
                 </div>
