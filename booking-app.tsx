@@ -33,8 +33,9 @@ const services = [
   "Instalação de Ar Condicionado",
   "Manutenção de Ar Condicionado",
   "Reparo de Ar Condicionado",
-  "Conserto de Geladeira,
-  "Conserto de Micro-Ondas",
+  "Limpeza de Ar Condicionado",
+  "Conserto de Micro-ondas",
+  "Conserto de Geladeira",
 ]
 
 const timeSlots = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
@@ -83,7 +84,7 @@ export default function ServiceScheduling() {
   const isWeekday = (dateString: string) => {
     const date = new Date(dateString)
     const day = date.getDay()
-    return day >= 0 && day <= 6 // Sunday = 0, Saturday = 6 (todos os dias)
+    return day >= 1 && day <= 5 // Monday = 1, Friday = 5 (apenas dias úteis)
   }
 
   const getMinDate = () => {
@@ -182,8 +183,13 @@ export default function ServiceScheduling() {
 
     // Generate WhatsApp message
     const message =
-      `🔧 AGENDAMENTO DE SERVIÇO - ${formData.name.toUpperCase()}*\n\n` +
-      `📅 *Data:* ${new Date(formData.date).toLocaleDateString("pt-BR")}\n` +
+      `*🔧 AGENDAMENTO DE SERVIÇO - ${formData.name.toUpperCase()}*\n\n` +
+      `📅 *Data:* ${new Date(formData.date + "T00:00:00").toLocaleDateString("pt-BR", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}\n` +
       `🕐 *Horário:* ${formData.time}\n` +
       `👤 *Cliente:* ${formData.name}\n` +
       `📞 *Telefone:* ${formData.phone}\n` +
@@ -406,7 +412,7 @@ export default function ServiceScheduling() {
                 <div className="space-y-2">
                   <Label htmlFor="date" className="text-lg font-semibold flex items-center gap-2">
                     <Calendar className="h-5 w-5" />
-                    Data (Segunda a Domingo)
+                    Data (Segunda a Sexta)
                   </Label>
                   <Input
                     id="date"
@@ -420,7 +426,7 @@ export default function ServiceScheduling() {
                       } else {
                         toast({
                           title: "Data inválida",
-                          description: "Atendemos todos os dias da semana.",
+                          description: "Atendemos apenas de segunda a sexta-feira.",
                           variant: "destructive",
                         })
                       }
@@ -523,7 +529,12 @@ export default function ServiceScheduling() {
                   <div key={apt.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                     <span className="font-medium">{apt.name}</span>
                     <span className="text-sm text-gray-600">
-                      {new Date(apt.date).toLocaleDateString("pt-BR")} às {apt.time}
+                      {new Date(apt.date + "T00:00:00").toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}{" "}
+                      às {apt.time}
                     </span>
                   </div>
                 ))}
