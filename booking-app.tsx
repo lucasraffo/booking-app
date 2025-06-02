@@ -1,69 +1,170 @@
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+"use client"
+
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Calendar, Clock, MessageCircle, Phone, User, Briefcase, MapPin } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Calendar, Phone, Clock, Wrench, MessageCircle, User } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
 
-export default function BookingApp() {
-  const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [address, setAddress] = useState("")
-  const [service, setService] = useState("")
-  const [date, setDate] = useState("")
-  const [time, setTime] = useState("")
-  const [note, setNote] = useState("")
-  const [errors, setErrors] = useState({})
+interface Appointment {
+  id: string
+  date: string
+  time: string
+  name: string
+  phone: string
+  service: string
+  observations?: string
+}
 
-  const services = [
-    "Limpeza Ar-condicionado",
-    "Manutenção Ar-condicionado",
-    "Instalação de Ar-condicionado",
-    "Conserto de Geladeira",
-    "Conserto de Micro-ondas",
-  ]
+const services = [
+  "Instalação de Ar Condicionado",
+  "Manutenção de Ar Condicionado",
+  "Reparo de Ar Condicionado",
+  "Limpeza de Ar Condicionado",
+  "Instalação Elétrica",
+  "Reparo Elétrico",
+  "Manutenção Preventiva",
+]
 
-  const timeSlots = [
-    "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
-    "11:00", "11:30", "14:00", "14:30", "15:00", "15:30",
-    "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
-  ]
+const timeSlots = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
 
-  const validateForm = () => {
-    const newErrors = {}
-    if (!name.trim()) newErrors.name = "Nome é obrigatório"
-    if (!phone.trim()) newErrors.phone = "Telefone é obrigatório"
-    if (!address.trim()) newErrors.address = "Endereço é obrigatório"
-    if (!service) newErrors.service = "Serviço é obrigatório"
-    if (!date) newErrors.date = "Data é obrigatória"
-    if (!time) newErrors.time = "Horário é obrigatório"
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+export default function ServiceScheduling() {
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    date: "",
+    time: "",
+    service: "",
+    observations: "",
+  })
+
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [availableSlots, setAvailableSlots] = useState<string[]>([])
+
+  // Load appointments from localStorage on component mount
+  useEffect(() => {
+    const savedAppointments = localStorage.getItem("appointments")
+    if (savedAppointments) {
+      setAppointments(JSON.parse(savedAppointments))
+    }
+  }, [])
+
+  // Update available slots when date changes
+  useEffect(() => {
+    if (formData.date) {
+      const bookedSlots = appointments.filter((apt) => apt.date === formData.date).map((apt) => apt.time)
+
+      setAvailableSlots(timeSlots.filter((slot) => !bookedSlots.includes(slot)))
+    } else {
+      setAvailableSlots(timeSlots)
+    }
+  }, [formData.date, appointments])
+
+  const isWeekday = (dateString: string) => {
+    const date = new Date(dateString)
+    const day = date.getDay()
+    return day >= 1 && day <= 5 // Monday = 1, Friday = 5
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!validateForm()) return
-    const message = encodeURIComponent(
-      `Olá! Meu nome é *${name}* e gostaria de agendar um serviço.\n\n` +
-      `📍 *Endereço:* ${address}\n📋 *Serviço:* ${service}\n📅 *Data:* ${date}\n⏰ *Horário:* ${time}\n📞 *Telefone:* ${phone}\n` +
-      (note ? `📝 *Observações:* ${note}` : "") +
-      `\n\nAguardo confirmação.`
+  const getMinDate = () => {
+    const today = new Date()
+    return today.toISOString().split("T")[0]
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+
+    // Reset time when date changes
+    if (field === "date") {
+      setFormData((prev) => ({
+        ...prev,
+        time: "",
+      }))
+    }
+  }
+
+  const isFormValid = () => {
+    return (
+      formData.name && formData.phone && formData.date && formData.time && formData.service && isWeekday(formData.date)
     )
-    const phoneNumber = "5547996960063"
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank")
   }
 
-   return (
+  const handleSubmit = () => {
+    if (!isFormValid()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Check if slot is still available
+    const isSlotTaken = appointments.some((apt) => apt.date === formData.date && apt.time === formData.time)
+
+    if (isSlotTaken) {
+      toast({
+        title: "Horário indisponível",
+        description: "Este horário já foi agendado. Por favor, escolha outro.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Create new appointment
+    const newAppointment: Appointment = {
+      id: Date.now().toString(),
+      date: formData.date,
+      time: formData.time,
+      name: formData.name,
+      phone: formData.phone,
+      service: formData.service,
+      observations: formData.observations,
+    }
+
+    // Save to state and localStorage
+    const updatedAppointments = [...appointments, newAppointment]
+    setAppointments(updatedAppointments)
+    localStorage.setItem("appointments", JSON.stringify(updatedAppointments))
+
+    // Generate WhatsApp message
+    const message =
+      `*Agendamento de Serviço*\n\n` +
+      `📅 *Data:* ${new Date(formData.date).toLocaleDateString("pt-BR")}\n` +
+      `🕐 *Horário:* ${formData.time}\n` +
+      `👤 *Nome:* ${formData.name}\n` +
+      `📞 *Telefone:* ${formData.phone}\n` +
+      `🔧 *Serviço:* ${formData.service}\n` +
+      `${formData.observations ? `📝 *Observações:* ${formData.observations}\n` : ""}\n` +
+      `Gostaria de confirmar este agendamento.`
+
+    const whatsappUrl = `https://wa.me/5547999999999?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, "_blank")
+
+    // Reset form
+    setFormData({
+      name: "",
+      phone: "",
+      date: "",
+      time: "",
+      service: "",
+      observations: "",
+    })
+
+    toast({
+      title: "Agendamento realizado!",
+      description: "Você será redirecionado para o WhatsApp.",
+    })
+  }
+
+  return (
     <div className="min-h-screen bg-gradient-to-br from-teal-100 via-blue-50 to-teal-200">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
