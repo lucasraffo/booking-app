@@ -63,91 +63,192 @@ export default function BookingApp() {
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank")
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
-      <div className="max-w-md mx-auto">
-        <Card className="shadow-lg">
-          <CardHeader className="text-center bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
-            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-              <Calendar className="h-6 w-6" />
-              Agendamento de Serviço
-            </CardTitle>
-            <p className="text-green-100">Preencha os dados para agendar via WhatsApp</p>
-          </CardHeader>
-          <CardContent className="space-y-6 p-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <User className="h-4 w-4" /> Nome Completo
-                </Label>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Digite seu nome" className={errors.name ? "border-red-500" : ""} />
-                {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+   return (
+    <div className="min-h-screen bg-gradient-to-br from-teal-100 via-blue-50 to-teal-200">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white p-8 rounded-t-lg">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Calendar className="h-8 w-8" />
+            <h1 className="text-3xl font-bold">Agendamento de Serviço</h1>
+          </div>
+          <p className="text-center text-blue-100 text-lg">Preencha os dados para agendar via WhatsApp.</p>
+        </div>
+
+        <Card className="rounded-t-none shadow-xl">
+          <CardContent className="p-8">
+            {/* Illustration */}
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <div className="w-48 h-32 bg-gradient-to-br from-blue-100 to-teal-100 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Wrench className="h-16 w-16 text-blue-600 mx-auto mb-2" />
+                    <p className="text-sm text-blue-600 font-medium">Técnico Especializado</p>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Nome Completo */}
               <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Phone className="h-4 w-4" /> Telefone
+                <Label htmlFor="name" className="text-lg font-semibold flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Nome Completo
                 </Label>
-                <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(47) 99999-9999" className={errors.phone ? "border-red-500" : ""} />
-                {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+                <Input
+                  id="name"
+                  placeholder="Digite seu nome completo"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className="h-12 text-lg"
+                />
               </div>
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" /> Endereço
-                </Label>
-                <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Rua, número, bairro, cidade" className={errors.address ? "border-red-500" : ""} />
-                {errors.address && <p className="text-red-500 text-sm">{errors.address}</p>}
+
+              {/* Telefone e Data */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-lg font-semibold flex items-center gap-2">
+                    <Phone className="h-5 w-5" />
+                    Telefone
+                  </Label>
+                  <Input
+                    id="phone"
+                    placeholder="(47) 99999-9999"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    className="h-12 text-lg"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="date" className="text-lg font-semibold flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Data (Segunda a Sexta)
+                  </Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    min={getMinDate()}
+                    value={formData.date}
+                    onChange={(e) => {
+                      const selectedDate = e.target.value
+                      if (isWeekday(selectedDate)) {
+                        handleInputChange("date", selectedDate)
+                      } else {
+                        toast({
+                          title: "Data inválida",
+                          description: "Atendemos apenas de segunda a sexta-feira.",
+                          variant: "destructive",
+                        })
+                      }
+                    }}
+                    className="h-12 text-lg"
+                  />
+                </div>
               </div>
+
+              {/* Horário */}
               <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" /> Serviço Desejado
+                <Label className="text-lg font-semibold flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Horário
                 </Label>
-                <Select value={service} onValueChange={setService}>
-                  <SelectTrigger className={errors.service ? "border-red-500" : ""}>
+                <Select
+                  value={formData.time}
+                  onValueChange={(value) => handleInputChange("time", value)}
+                  disabled={!formData.date || !isWeekday(formData.date)}
+                >
+                  <SelectTrigger className="h-12 text-lg">
+                    <SelectValue placeholder="Selecione o horário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableSlots.map((slot) => (
+                      <SelectItem key={slot} value={slot}>
+                        {slot}
+                      </SelectItem>
+                    ))}
+                    {availableSlots.length === 0 && formData.date && (
+                      <SelectItem value="" disabled>
+                        Nenhum horário disponível
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Serviço Desejado */}
+              <div className="space-y-2">
+                <Label className="text-lg font-semibold flex items-center gap-2">
+                  <Wrench className="h-5 w-5" />
+                  Serviço Desejado
+                </Label>
+                <Select value={formData.service} onValueChange={(value) => handleInputChange("service", value)}>
+                  <SelectTrigger className="h-12 text-lg">
                     <SelectValue placeholder="Selecione o serviço" />
                   </SelectTrigger>
                   <SelectContent>
-                    {services.map((item) => (
-                      <SelectItem key={item} value={item}>{item}</SelectItem>
+                    {services.map((service) => (
+                      <SelectItem key={service} value={service}>
+                        {service}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.service && <p className="text-red-500 text-sm">{errors.service}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" /> Data
-                  </Label>
-                  <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={errors.date ? "border-red-500" : ""} />
-                  {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" /> Horário
-                  </Label>
-                  <Select value={time} onValueChange={setTime}>
-                    <SelectTrigger className={errors.time ? "border-red-500" : ""}>
-                      <SelectValue placeholder="Horário" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeSlots.map((slot) => (
-                        <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.time && <p className="text-red-500 text-sm">{errors.time}</p>}
-                </div>
-              </div>
+
+              {/* Observações */}
               <div className="space-y-2">
-                <Label>Observações (opcional)</Label>
-                <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Alguma informação adicional?" rows={3} />
+                <Label htmlFor="observations" className="text-lg font-semibold flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  Observações (Opcional)
+                </Label>
+                <Textarea
+                  id="observations"
+                  placeholder="Alguma observação especial?"
+                  value={formData.observations}
+                  onChange={(e) => handleInputChange("observations", e.target.value)}
+                  className="min-h-[100px] text-lg"
+                />
               </div>
-              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700">
-                <MessageCircle className="h-4 w-4 mr-2" /> Enviar WhatsApp
-              </Button>
-            </form>
+
+              {/* WhatsApp Button */}
+              <div className="bg-green-50 p-6 rounded-lg border-2 border-green-200">
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!isFormValid()}
+                  className="w-full h-14 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <MessageCircle className="h-6 w-6 mr-2" />
+                  {isFormValid()
+                    ? "Formulário preenchido! Clique no botão abaixo para enviar via WhatsApp."
+                    : "Preencha todos os campos para continuar"}
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
+
+        {/* Appointments Summary */}
+        {appointments.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Agendamentos Realizados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {appointments.slice(-5).map((apt) => (
+                  <div key={apt.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <span className="font-medium">{apt.name}</span>
+                    <span className="text-sm text-gray-600">
+                      {new Date(apt.date).toLocaleDateString("pt-BR")} às {apt.time}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )
