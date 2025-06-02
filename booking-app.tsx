@@ -103,7 +103,7 @@ Aguardo confirmação! 😊`
   const getWhatsappLink = () => {
     if (!validateForm()) return "#"
     const message = encodeURIComponent(formatMessage())
-    const phoneNumber = "5547996960063"
+    const phoneNumber = "5547996564441"
     return `https://wa.me/${phoneNumber}?text=${message}`
   }
 
