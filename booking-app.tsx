@@ -50,8 +50,8 @@ export default function ServiceScheduling() {
       number: "",
       complement: "",
       neighborhood: "",
-      city: "",
-      state: "",
+      city: "Balneário Camboriú",
+      state: "SC",
     },
     date: "",
     time: "",
@@ -113,6 +113,8 @@ export default function ServiceScheduling() {
       address: {
         ...prev.address,
         [field]: value,
+        city: "Balneário Camboriú", // Fixar cidade
+        state: "SC", // Fixar estado
       },
     }))
   }
@@ -128,8 +130,6 @@ export default function ServiceScheduling() {
       formData.address.street &&
       formData.address.number &&
       formData.address.neighborhood &&
-      formData.address.city &&
-      formData.address.state &&
       isWeekday(formData.date)
     )
   }
@@ -183,7 +183,7 @@ export default function ServiceScheduling() {
 
     // Generate WhatsApp message
     const message =
-      `*🔧 AGENDAMENTO DE SERVIÇO - ${formData.name.toUpperCase()}*\n\n` +
+      `🔧 AGENDAMENTO DE SERVIÇO - ${formData.name.toUpperCase()}\n\n` +
       `📅 *Data:* ${new Date(formData.date + "T00:00:00").toLocaleDateString("pt-BR", {
         weekday: "long",
         year: "numeric",
@@ -201,7 +201,7 @@ export default function ServiceScheduling() {
       `${formData.observations ? `📝 *Observações:* ${formData.observations}\n` : ""}\n` +
       `Gostaria de confirmar este agendamento.`
 
-    const whatsappUrl = `https://wa.me/5547996960063?text=${encodeURIComponent(message)}`
+    const whatsappUrl = `https://wa.me/554796960063?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
 
     // Reset form
@@ -214,8 +214,8 @@ export default function ServiceScheduling() {
         number: "",
         complement: "",
         neighborhood: "",
-        city: "",
-        state: "",
+        city: "Balneário Camboriú",
+        state: "SC",
       },
       date: "",
       time: "",
@@ -239,6 +239,7 @@ export default function ServiceScheduling() {
             <h1 className="text-3xl font-bold">Agendamento de Serviço</h1>
           </div>
           <p className="text-center text-blue-100 text-lg">Preencha os dados para agendar via WhatsApp.</p>
+          <p className="text-center text-blue-200 text-sm mt-2">📍 Atendemos exclusivamente em Balneário Camboriú/SC</p>
         </div>
 
         <Card className="rounded-t-none shadow-xl">
@@ -316,7 +317,7 @@ export default function ServiceScheduling() {
                 <div className="space-y-4">
                   <Label className="text-lg font-semibold flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
-                    Endereço do Serviço
+                    Endereço do Serviço - Balneário Camboriú/SC
                   </Label>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -324,7 +325,7 @@ export default function ServiceScheduling() {
                       <Label htmlFor="cep">CEP</Label>
                       <Input
                         id="cep"
-                        placeholder="00000-000"
+                        placeholder="88330-000"
                         value={formData.address.cep}
                         onChange={(e) => handleAddressChange("cep", e.target.value)}
                         className="h-12"
@@ -332,22 +333,10 @@ export default function ServiceScheduling() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="state">Estado</Label>
-                      <Select
-                        value={formData.address.state}
-                        onValueChange={(value) => handleAddressChange("state", value)}
-                      >
-                        <SelectTrigger className="h-12">
-                          <SelectValue placeholder="Selecione o estado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="SC">Santa Catarina</SelectItem>
-                          <SelectItem value="PR">Paraná</SelectItem>
-                          <SelectItem value="RS">Rio Grande do Sul</SelectItem>
-                          <SelectItem value="SP">São Paulo</SelectItem>
-                          <SelectItem value="RJ">Rio de Janeiro</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label>Cidade/Estado</Label>
+                      <div className="h-12 px-3 py-2 bg-gray-100 border border-gray-200 rounded-md flex items-center text-gray-600">
+                        Balneário Camboriú/SC
+                      </div>
                     </div>
                   </div>
 
@@ -395,17 +384,6 @@ export default function ServiceScheduling() {
                         className="h-12"
                       />
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Cidade</Label>
-                    <Input
-                      id="city"
-                      placeholder="Nome da cidade"
-                      value={formData.address.city}
-                      onChange={(e) => handleAddressChange("city", e.target.value)}
-                      className="h-12"
-                    />
                   </div>
                 </div>
 
