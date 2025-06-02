@@ -17,13 +17,12 @@ export default function ServiceBookingApp() {
     observacoes: "",
   })
 
-  const servicos = [
-    "Instalação de Ar Condicionado",
-    "Manutenção de Ar Condicionado",
-    "Limpeza de Ar Condicionado",
-    "Reparo de Ar Condicionado",
-    "Instalação Elétrica",
-    "Manutenção Elétrica",
+  const services = [
+    "Limpeza Ar-condicionado",
+    "Manutenção Ar-condicionado",
+    "Instalação de Ar-condicionado",
+    "Conserto de Geladeira",
+    "Conserto de Micro-ondas",
   ]
 
   const horarios = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
@@ -43,17 +42,21 @@ export default function ServiceBookingApp() {
     })
   }
 
-  const handleWhatsAppSend = () => {
-    const message = `Olá! Gostaria de agendar um serviço:
+ const formatMessage = () => {
+    return Olá! 👋
 
-*Nome:* ${formData.nome}
-*Telefone:* ${formData.telefone}
-*Serviço:* ${formData.servico}
-*Data:* ${formData.data}
-*Horário:* ${formData.horario}
-${formData.observacoes ? `*Observações:* ${formData.observacoes}` : ""}
+Meu nome é *${name}* e gostaria de agendar um serviço.
 
-Aguardo confirmação!`
+📋 *Detalhes do Agendamento:*
+• Serviço: ${service}
+• Data: ${formatDate(date)}
+• Horário: ${time}
+• Telefone: ${phone}
+
+${note ? 📝 *Observações:*\n${note} : ""}
+
+Aguardo confirmação! 😊
+  }
 
     const whatsappUrl = `https://wa.me/5547996960063?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
