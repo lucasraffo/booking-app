@@ -142,7 +142,7 @@ export default function ServiceScheduling() {
       `${formData.observations ? `📝 *Observações:* ${formData.observations}\n` : ""}\n` +
       `Gostaria de confirmar este agendamento.`
 
-    const whatsappUrl = `https://wa.me/5547999999999?text=${encodeURIComponent(message)}`
+    const whatsappUrl = `https://wa.me/55479960063?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
 
     // Reset form
