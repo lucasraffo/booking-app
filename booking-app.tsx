@@ -1,270 +1,238 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Clock, MessageCircle, Phone, User, Briefcase } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Calendar, Clock, User, Phone, Briefcase, MessageSquare, Smartphone } from "lucide-react"
 
-export default function BookingApp() {
-  const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
-  const [service, setService] = useState("")
-  const [date, setDate] = useState("")
-  const [time, setTime] = useState("")
-  const [note, setNote] = useState("")
-  const [errors, setErrors] = useState({})
+export default function ServiceBookingApp() {
+  const [formData, setFormData] = useState({
+    nome: "",
+    telefone: "",
+    servico: "",
+    data: "",
+    horario: "",
+    observacoes: "",
+  })
 
-  const services = [
-    "Limpeza Ar-condicionado",
-    "Manutenção Ar-condicionado",
-    "Instalação de Ar-condicionado",
-    "Conserto de Geladeira",
-    "Conserto de Micro-ondas",
+  const servicos = [
+    "Instalação de Ar Condicionado",
+    "Manutenção de Ar Condicionado",
+    "Limpeza de Ar Condicionado",
+    "Reparo de Ar Condicionado",
+    "Instalação Elétrica",
+    "Manutenção Elétrica",
   ]
 
-  const timeSlots = [
-    "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
-    "11:00", "11:30", "14:00", "14:30", "15:00", "15:30",
-    "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
-  ]
+  const horarios = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
 
-  const isWeekday = (dateStr) => {
-    const day = new Date(dateStr).getDay()
-    return day >= 1 && day <= 5
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const validateForm = () => {
-    const newErrors = {}
-
-    if (!name.trim()) newErrors.name = "Nome é obrigatório"
-    if (!phone.trim()) newErrors.phone = "Telefone é obrigatório"
-    if (!service) newErrors.service = "Serviço é obrigatório"
-    if (!date) newErrors.date = "Data é obrigatória"
-    if (!time) newErrors.time = "Horário é obrigatório"
-
-    const plainPhone = phone.replace(/\D/g, "")
-    if (phone && (!/^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(phone) && !/^\d{10,11}$/.test(plainPhone))) {
-      newErrors.phone = "Formato de telefone inválido"
-    }
-
-    if (date) {
-      const selectedDate = new Date(date)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      if (selectedDate < today) {
-        newErrors.date = "Data não pode ser no passado"
-      }
-      if (!isWeekday(date)) {
-        newErrors.date = "Escolha uma data entre segunda e sexta-feira"
-      }
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+  const handleClear = () => {
+    setFormData({
+      nome: "",
+      telefone: "",
+      servico: "",
+      data: "",
+      horario: "",
+      observacoes: "",
+    })
   }
 
-  const formatPhone = (value) => {
-    const numbers = value.replace(/\D/g, "")
-    if (numbers.length < 10) return value
-    return numbers.replace(/(\d{2})(\d{4,5})(\d{4})/, "($1) $2-$3")
+  const handleWhatsAppSend = () => {
+    const message = `Olá! Gostaria de agendar um serviço:
+
+*Nome:* ${formData.nome}
+*Telefone:* ${formData.telefone}
+*Serviço:* ${formData.servico}
+*Data:* ${formData.data}
+*Horário:* ${formData.horario}
+${formData.observacoes ? `*Observações:* ${formData.observacoes}` : ""}
+
+Aguardo confirmação!`
+
+    const whatsappUrl = `https://wa.me/5547999999999?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, "_blank")
   }
 
-  const handlePhoneChange = (e) => {
-    const formatted = formatPhone(e.target.value)
-    setPhone(formatted)
-  }
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("pt-BR")
-  }
-
-  const formatMessage = () => {
-    return `Olá! 👋
-
-Meu nome é *${name}* e gostaria de agendar um serviço.
-
-📋 *Detalhes do Agendamento:*
-• Serviço: ${service}
-• Data: ${formatDate(date)}
-• Horário: ${time}
-• Telefone: ${phone}
-
-${note ? `📝 *Observações:*\n${note}` : ""}
-
-Aguardo confirmação! 😊`
-  }
-
-  const getWhatsappLink = () => {
-    if (!validateForm()) return "#"
-    const message = encodeURIComponent(formatMessage())
-    const phoneNumber = "5547996564441"
-    return `https://wa.me/${phoneNumber}?text=${message}`
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (validateForm()) {
-      window.open(getWhatsappLink(), "_blank", "noopener,noreferrer")
-    }
-  }
-
-  const resetForm = () => {
-    setName("")
-    setPhone("")
-    setService("")
-    setDate("")
-    setTime("")
-    setNote("")
-    setErrors({})
-    window.scrollTo(0, 0)
-  }
-
-  const isFormValid = name && phone && service && date && time && Object.keys(errors).length === 0
+  const isFormValid = formData.nome && formData.telefone && formData.servico && formData.data && formData.horario
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-4">
-      <div className="max-w-md mx-auto">
-        <Card className="shadow-lg">
-          <CardHeader className="text-center bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
-            <CardTitle className="text-2xl font-bold flex items-center justify-center gap-2">
-              <Calendar className="h-6 w-6" />
-              Agendamento de Serviço
-            </CardTitle>
-            <p className="text-green-100">Preencha os dados para agendar via WhatsApp</p>
-          </CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-16 right-16 opacity-20">
+        <div className="bg-gray-300 rounded-lg p-4 w-48 h-32 relative">
+          <div className="absolute top-2 left-2 right-2 h-1 bg-gray-400 rounded"></div>
+          <div className="absolute bottom-8 left-4 right-4 space-y-1">
+            <div className="h-2 bg-gray-500 rounded"></div>
+            <div className="h-2 bg-gray-500 rounded"></div>
+            <div className="h-2 bg-gray-500 rounded"></div>
+          </div>
+        </div>
+      </div>
 
-          <CardContent className="space-y-6 p-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Nome Completo
-                </Label>
+      <div className="absolute top-48 right-8 opacity-20">
+        <div className="bg-gray-400 rounded-lg p-3 w-20 h-20 flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-gray-600 rounded-full relative">
+            <div className="absolute inset-2 border-2 border-gray-600 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating particles */}
+      <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400 rounded-full opacity-30"></div>
+      <div className="absolute top-3/4 right-1/3 w-1 h-1 bg-blue-300 rounded-full opacity-40"></div>
+      <div className="absolute bottom-1/4 left-1/6 w-3 h-3 bg-blue-500 rounded-full opacity-20"></div>
+
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <div className="max-w-md mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-slate-600 p-3 rounded-2xl">
+                <Calendar className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Agendamento
+              <br />
+              de Serviço
+            </h1>
+            <p className="text-slate-300 text-lg">
+              Preencha os dados para agendar
+              <br />
+              via WhatsApp
+            </p>
+          </div>
+
+          {/* Form Card */}
+          <div className="bg-white rounded-3xl p-6 shadow-2xl">
+            <div className="space-y-6">
+              {/* Nome Completo */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="w-5 h-5 text-gray-600" />
+                  <label className="text-gray-700 font-medium">Nome Completo</label>
+                </div>
                 <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
                   placeholder="Digite seu nome completo"
-                  className={errors.name ? "border-red-500" : ""}
+                  value={formData.nome}
+                  onChange={(e) => handleInputChange("nome", e.target.value)}
+                  className="bg-gray-100 border-0 rounded-xl h-12 text-gray-700 placeholder:text-gray-500"
                 />
-                {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  Telefone
-                </Label>
+              {/* Telefone */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Phone className="w-5 h-5 text-gray-600" />
+                  <label className="text-gray-700 font-medium">Telefone</label>
+                </div>
                 <Input
-                  id="phone"
-                  value={phone}
-                  onChange={handlePhoneChange}
                   placeholder="(47) 99999-9999"
-                  className={errors.phone ? "border-red-500" : ""}
+                  value={formData.telefone}
+                  onChange={(e) => handleInputChange("telefone", e.target.value)}
+                  className="bg-gray-100 border-0 rounded-xl h-12 text-gray-700 placeholder:text-gray-500"
                 />
-                {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" />
-                  Serviço Desejado
-                </Label>
-                <Select value={service} onValueChange={setService}>
-                  <SelectTrigger className={errors.service ? "border-red-500" : ""}>
+              {/* Serviço Desejado */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase className="w-5 h-5 text-gray-600" />
+                  <label className="text-gray-700 font-medium">Serviço Desejado</label>
+                </div>
+                <Select value={formData.servico} onValueChange={(value) => handleInputChange("servico", value)}>
+                  <SelectTrigger className="bg-gray-100 border-0 rounded-xl h-12 text-gray-700">
                     <SelectValue placeholder="Selecione o serviço" />
                   </SelectTrigger>
                   <SelectContent>
-                    {services.map((serviceOption) => (
-                      <SelectItem key={serviceOption} value={serviceOption}>
-                        {serviceOption}
+                    {servicos.map((servico) => (
+                      <SelectItem key={servico} value={servico}>
+                        {servico}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.service && <p className="text-sm text-red-500">{errors.service}</p>}
               </div>
 
+              {/* Data e Horário */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="date" className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Data
-                  </Label>
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-5 h-5 text-gray-600" />
+                    <label className="text-gray-700 font-medium">Data</label>
+                  </div>
                   <Input
-                    id="date"
                     type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    min={new Date().toISOString().split("T")[0]}
-                    className={errors.date ? "border-red-500" : ""}
+                    value={formData.data}
+                    onChange={(e) => handleInputChange("data", e.target.value)}
+                    className="bg-gray-100 border-0 rounded-xl h-12 text-gray-700"
                   />
-                  {errors.date && <p className="text-sm text-red-500">{errors.date}</p>}
                 </div>
-
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Horário
-                  </Label>
-                  <Select value={time} onValueChange={setTime}>
-                    <SelectTrigger className={errors.time ? "border-red-500" : ""}>
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-5 h-5 text-gray-600" />
+                    <label className="text-gray-700 font-medium">Horário</label>
+                  </div>
+                  <Select value={formData.horario} onValueChange={(value) => handleInputChange("horario", value)}>
+                    <SelectTrigger className="bg-gray-100 border-0 rounded-xl h-12 text-gray-700">
                       <SelectValue placeholder="Horário" />
                     </SelectTrigger>
                     <SelectContent>
-                      {timeSlots.map((timeSlot) => (
-                        <SelectItem key={timeSlot} value={timeSlot}>
-                          {timeSlot}
+                      {horarios.map((horario) => (
+                        <SelectItem key={horario} value={horario}>
+                          {horario}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.time && <p className="text-sm text-red-500">{errors.time}</p>}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="note">Observações (Opcional)</Label>
+              {/* Observações */}
+              <div>
+                <label className="text-gray-700 font-medium block mb-2">Observações (Opcional)</label>
                 <Textarea
-                  id="note"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
                   placeholder="Alguma observação especial?"
-                  rows={3}
+                  value={formData.observacoes}
+                  onChange={(e) => handleInputChange("observacoes", e.target.value)}
+                  className="bg-gray-100 border-0 rounded-xl text-gray-700 placeholder:text-gray-500 min-h-[80px] resize-none"
                 />
               </div>
 
-              {isFormValid && (
-                <Alert className="bg-green-50 border-green-200">
-                  <MessageCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Formulário preenchido! Clique no botão abaixo para enviar via WhatsApp.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <div className="flex gap-3">
-                <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700" disabled={!isFormValid}>
-                  <MessageCircle className="h-4 w-4 mr-2" />
+              {/* Buttons */}
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={handleWhatsAppSend}
+                  disabled={!isFormValid}
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-white rounded-xl h-12 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <MessageSquare className="w-5 h-5 mr-2" />
                   Enviar WhatsApp
                 </Button>
-
-                <Button type="button" variant="outline" onClick={resetForm} className="px-4">
+                <Button
+                  onClick={handleClear}
+                  variant="outline"
+                  className="px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 border-0 rounded-xl h-12 font-medium"
+                >
                   Limpar
                 </Button>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+          </div>
 
-        <div className="mt-4 text-center text-sm text-gray-600">
-          <p>📱 Você será redirecionado para o WhatsApp</p>
+          {/* Footer Message */}
+          <div className="text-center mt-6">
+            <div className="flex items-center justify-center gap-2 text-slate-300">
+              <Smartphone className="w-5 h-5" />
+              <span>Você será redirecionado para o WhatsApp</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
