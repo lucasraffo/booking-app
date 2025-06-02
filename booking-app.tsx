@@ -72,6 +72,12 @@ export default function BookingApp() {
     return { min, max }
   }
 
+  const isValidDate = (dateStr) => {
+    const date = new Date(dateStr)
+    const day = date.getDay()
+    return day !== 6 // 6 = sábado (Saturday)
+  }
+
   const { min, max } = getMinMaxDate()
 
   return (
@@ -129,7 +135,18 @@ export default function BookingApp() {
                   <Label className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" /> Data
                   </Label>
-                  <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={min} max={max} className={errors.date ? "border-red-500" : ""} />
+                  <Input
+                    type="date"
+                    value={date}
+                    onChange={(e) => {
+                      const selected = e.target.value
+                      if (isValidDate(selected)) setDate(selected)
+                      else alert("Agendamentos aos sábados não são permitidos.")
+                    }}
+                    min={min}
+                    max={max}
+                    className={errors.date ? "border-red-500" : ""}
+                  />
                   {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
                 </div>
                 <div className="space-y-2">
