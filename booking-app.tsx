@@ -181,7 +181,10 @@ export default function ServiceScheduling() {
     localStorage.setItem("appointments", JSON.stringify(updatedAppointments))
 
     // Generate WhatsApp message
-    const message =
+   const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!validateForm()) return
+    const message = encodeURIComponent(
       `*Meu nome é *${name}* e gostaria de agendar um serviço.*\n\n` +
       `📅 *Data:* ${new Date(formData.date).toLocaleDateString("pt-BR")}\n` +
       `🕐 *Horário:* ${formData.time}\n` +
@@ -193,7 +196,7 @@ export default function ServiceScheduling() {
       `CEP: ${formData.address.cep}\n` +
       `🔧 *Serviço:* ${formData.service}\n` +
       `${formData.observations ? `📝 *Observações:* ${formData.observations}\n` : ""}\n` +
-      `Aguardo confirmação😊`
+      `Aguardo confirmação😉`
 
     const whatsappUrl = `https://wa.me/5547996960063?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
