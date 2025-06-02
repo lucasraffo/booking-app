@@ -165,7 +165,7 @@ Aguardo confirmação! 😊`
                   id="phone"
                   value={phone}
                   onChange={handlePhoneChange}
-                  placeholder="(47) 4002-8922"
+                  placeholder="(47) 99999-9999"
                   className={errors.phone ? "border-red-500" : ""}
                 />
                 {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
@@ -270,4 +270,3 @@ Aguardo confirmação! 😊`
     </div>
   )
 }
-
