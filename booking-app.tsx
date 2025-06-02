@@ -33,12 +33,12 @@ const services = [
   "Instalação de Ar Condicionado",
   "Reparo de Ar Condicionado",
   "Limpeza de Ar Condicionado",
-  "Reparo de Geladeira",
-  "Reparo de Microondas",
+  "Manutenção de Geladeira",
+  "Manutenção de Microondas",
   
 ]
 
-const timeSlots = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"]
+const timeSlots = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
 
 export default function ServiceScheduling() {
   const [formData, setFormData] = useState({
@@ -50,8 +50,8 @@ export default function ServiceScheduling() {
       number: "",
       complement: "",
       neighborhood: "",
-      city: "Balneário Camboriú",
-      state: "SC",
+      city: "",
+      state: "",
     },
     date: "",
     time: "",
@@ -82,9 +82,9 @@ export default function ServiceScheduling() {
   }, [formData.date, appointments])
 
   const isWeekday = (dateString: string) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString + "T12:00:00") // Adicionar horário para evitar problemas de timezone
     const day = date.getDay()
-    return day >= 0 && day <= 5 // Monday = 1, Friday = 5 (apenas dias úteis)
+    return day >= 1 && day <= 5 // Monday = 1, Friday = 5 (apenas dias úteis)
   }
 
   const getMinDate = () => {
@@ -187,7 +187,7 @@ export default function ServiceScheduling() {
 
     // Generate WhatsApp message
     const message =
-      `🔧 AGENDAMENTO DE SERVIÇO\n\n` +
+      `🔧 AGENDAMENTO DE SERVIÇO🔧\n\n` +
       `📅 *Data:* ${new Date(formData.date + "T00:00:00").toLocaleDateString("pt-BR", {
         weekday: "long",
         year: "numeric",
@@ -426,24 +426,40 @@ export default function ServiceScheduling() {
                     value={formData.date}
                     onChange={(e) => {
                       const selectedDate = e.target.value
-                      const today = new Date()
-                      const selectedDateObj = new Date(selectedDate + "T00:00:00")
+                      if (!selectedDate) return
 
-                      if (
-                        isWeekday(selectedDate) &&
-                        selectedDateObj >= new Date(today.getFullYear(), today.getMonth(), today.getDate())
-                      ) {
+                      try {
+                        const today = new Date()
+                        const selectedDateObj = new Date(selectedDate + "T12:00:00")
+                        const todayDateObj = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+
+                        // Verificar se é dia útil
+                        if (!isWeekday(selectedDate)) {
+                          toast({
+                            title: "Data inválida",
+                            description: "Atendemos apenas de segunda a sexta-feira.",
+                            variant: "destructive",
+                          })
+                          return
+                        }
+
+                        // Verificar se não é data passada
+                        if (selectedDateObj < todayDateObj) {
+                          toast({
+                            title: "Data inválida",
+                            description: "Não é possível agendar para datas passadas.",
+                            variant: "destructive",
+                          })
+                          return
+                        }
+
+                        // Se passou em todas as validações, aceitar a data
                         handleInputChange("date", selectedDate)
-                      } else if (!isWeekday(selectedDate)) {
+                      } catch (error) {
+                        console.error("Erro ao validar data:", error)
                         toast({
-                          title: "Data inválida",
-                          description: "Atendemos apenas de segunda a sexta-feira.",
-                          variant: "destructive",
-                        })
-                      } else {
-                        toast({
-                          title: "Data inválida",
-                          description: "Não é possível agendar para datas passadas.",
+                          title: "Erro",
+                          description: "Erro ao processar a data selecionada.",
                           variant: "destructive",
                         })
                       }
