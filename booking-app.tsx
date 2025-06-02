@@ -31,11 +31,10 @@ interface Appointment {
 
 const services = [
   "Instalação de Ar Condicionado",
-  "Manutenção de Ar Condicionado",
   "Reparo de Ar Condicionado",
   "Limpeza de Ar Condicionado",
-  "Conserto Geladeira",
-  "Conserto Micro-Ondas",
+  "Reparo de Geladeira",
+  "Reparo de Microondas",
   
 ]
 
@@ -51,8 +50,8 @@ export default function ServiceScheduling() {
       number: "",
       complement: "",
       neighborhood: "",
-      city: "",
-      state: "",
+      city: "Balneário Camboriú",
+      state: "SC",
     },
     date: "",
     time: "",
@@ -85,12 +84,16 @@ export default function ServiceScheduling() {
   const isWeekday = (dateString: string) => {
     const date = new Date(dateString)
     const day = date.getDay()
-    return day >= 1 && day <= 5 // Monday = 1, Friday = 5
+    return day >= 0 && day <= 5 // Monday = 1, Friday = 5 (apenas dias úteis)
   }
 
   const getMinDate = () => {
     const today = new Date()
-    return today.toISOString().split("T")[0]
+    // Ajustar para timezone brasileiro e permitir agendamento no mesmo dia
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, "0")
+    const day = String(today.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -114,6 +117,8 @@ export default function ServiceScheduling() {
       address: {
         ...prev.address,
         [field]: value,
+        city: "Balneário Camboriú", // Fixar cidade
+        state: "SC", // Fixar estado
       },
     }))
   }
@@ -129,8 +134,6 @@ export default function ServiceScheduling() {
       formData.address.street &&
       formData.address.number &&
       formData.address.neighborhood &&
-      formData.address.city &&
-      formData.address.state &&
       isWeekday(formData.date)
     )
   }
@@ -184,10 +187,15 @@ export default function ServiceScheduling() {
 
     // Generate WhatsApp message
     const message =
-      `Agendamento de Serviço\n\n` +
-      `📅 *Data:* ${new Date(formData.date).toLocaleDateString("pt-BR")}\n` +
+      `🔧 AGENDAMENTO DE SERVIÇO\n\n` +
+      `📅 *Data:* ${new Date(formData.date + "T00:00:00").toLocaleDateString("pt-BR", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}\n` +
       `🕐 *Horário:* ${formData.time}\n` +
-      `👤 *Nome:* ${formData.name}\n` +
+      `👤 *Cliente:* ${formData.name}\n` +
       `📞 *Telefone:* ${formData.phone}\n` +
       `📍 *Endereço:*\n` +
       `${formData.address.street}, ${formData.address.number}${formData.address.complement ? `, ${formData.address.complement}` : ""}\n` +
@@ -210,8 +218,8 @@ export default function ServiceScheduling() {
         number: "",
         complement: "",
         neighborhood: "",
-        city: "",
-        state: "",
+        city: "Balneário Camboriú",
+        state: "SC",
       },
       date: "",
       time: "",
@@ -235,6 +243,7 @@ export default function ServiceScheduling() {
             <h1 className="text-3xl font-bold">Agendamento de Serviço</h1>
           </div>
           <p className="text-center text-blue-100 text-lg">Preencha os dados para agendar via WhatsApp.</p>
+          <p className="text-center text-blue-200 text-sm mt-2">📍 Atendemos exclusivamente em Balneário Camboriú/SC</p>
         </div>
 
         <Card className="rounded-t-none shadow-xl">
@@ -242,10 +251,58 @@ export default function ServiceScheduling() {
             {/* Illustration */}
             <div className="flex justify-center mb-8">
               <div className="relative">
-                <div className="w-48 h-32 bg-gradient-to-br from-blue-100 to-teal-100 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Wrench className="h-16 w-16 text-blue-600 mx-auto mb-2" />
-                    <p className="text-sm text-blue-600 font-medium">Técnico Especializado</p>
+                <div className="w-80 h-56 bg-gradient-to-br from-blue-100 to-teal-100 rounded-lg flex items-center justify-center p-4">
+                  <div className="flex flex-col items-center">
+                    <div className="flex items-center justify-center space-x-4 mb-4">
+                      {/* Ar Condicionado */}
+                      <div className="relative">
+                        <div className="w-24 h-12 bg-white rounded-md shadow-md flex items-center justify-center border-2 border-blue-200">
+                          <div className="w-20 h-8 bg-blue-50 rounded flex items-center justify-center">
+                            <div className="flex space-x-1">
+                              <div className="text-blue-500 text-xs">❄️</div>
+                              <div className="text-blue-500 text-xs">❄️</div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Ondas de ar frio */}
+                        <div className="absolute -bottom-2 left-0 right-0 flex justify-center">
+                          <div className="flex space-x-1">
+                            <div className="w-4 h-2 bg-blue-200 rounded-full opacity-70"></div>
+                            <div className="w-4 h-2 bg-blue-200 rounded-full opacity-80"></div>
+                            <div className="w-4 h-2 bg-blue-200 rounded-full opacity-90"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Geladeira */}
+                      <div className="relative">
+                        <div className="w-16 h-20 bg-white rounded-md shadow-md border-2 border-gray-200 flex flex-col">
+                          <div className="w-full h-8 bg-gray-50 rounded-t border-b border-gray-200 flex items-center justify-center">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                          </div>
+                          <div className="w-full h-12 bg-blue-50 rounded-b flex items-center justify-center">
+                            <div className="text-blue-500 text-xs">🧊</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Microondas */}
+                      <div className="relative">
+                        <div className="w-20 h-12 bg-white rounded-md shadow-md border-2 border-gray-200 flex items-center justify-center">
+                          <div className="w-16 h-8 bg-gray-900 rounded flex items-center justify-center relative">
+                            <div className="text-green-400 text-xs">⚡</div>
+                            <div className="absolute top-0 right-1 w-1 h-1 bg-red-500 rounded-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center mt-2">
+                      <Wrench className="h-5 w-5 text-blue-600 mr-2" />
+                      <p className="text-sm text-blue-600 font-medium text-center">
+                        Refrigeração, Climatização & Eletrodomésticos
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -287,7 +344,7 @@ export default function ServiceScheduling() {
                 <div className="space-y-4">
                   <Label className="text-lg font-semibold flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
-                    Endereço do Serviço
+                    Endereço do Serviço - Balneário Camboriú/SC
                   </Label>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -295,7 +352,7 @@ export default function ServiceScheduling() {
                       <Label htmlFor="cep">CEP</Label>
                       <Input
                         id="cep"
-                        placeholder="00000-000"
+                        placeholder="88330-000"
                         value={formData.address.cep}
                         onChange={(e) => handleAddressChange("cep", e.target.value)}
                         className="h-12"
@@ -303,22 +360,10 @@ export default function ServiceScheduling() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="state">Estado</Label>
-                      <Select
-                        value={formData.address.state}
-                        onValueChange={(value) => handleAddressChange("state", value)}
-                      >
-                        <SelectTrigger className="h-12">
-                          <SelectValue placeholder="Selecione o estado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="SC">Santa Catarina</SelectItem>
-                          <SelectItem value="PR">Paraná</SelectItem>
-                          <SelectItem value="RS">Rio Grande do Sul</SelectItem>
-                          <SelectItem value="SP">São Paulo</SelectItem>
-                          <SelectItem value="RJ">Rio de Janeiro</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label>Cidade/Estado</Label>
+                      <div className="h-12 px-3 py-2 bg-gray-100 border border-gray-200 rounded-md flex items-center text-gray-600">
+                        Balneário Camboriú/SC
+                      </div>
                     </div>
                   </div>
 
@@ -367,17 +412,6 @@ export default function ServiceScheduling() {
                       />
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Cidade</Label>
-                    <Input
-                      id="city"
-                      placeholder="Nome da cidade"
-                      value={formData.address.city}
-                      onChange={(e) => handleAddressChange("city", e.target.value)}
-                      className="h-12"
-                    />
-                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -392,12 +426,24 @@ export default function ServiceScheduling() {
                     value={formData.date}
                     onChange={(e) => {
                       const selectedDate = e.target.value
-                      if (isWeekday(selectedDate)) {
+                      const today = new Date()
+                      const selectedDateObj = new Date(selectedDate + "T00:00:00")
+
+                      if (
+                        isWeekday(selectedDate) &&
+                        selectedDateObj >= new Date(today.getFullYear(), today.getMonth(), today.getDate())
+                      ) {
                         handleInputChange("date", selectedDate)
-                      } else {
+                      } else if (!isWeekday(selectedDate)) {
                         toast({
                           title: "Data inválida",
                           description: "Atendemos apenas de segunda a sexta-feira.",
+                          variant: "destructive",
+                        })
+                      } else {
+                        toast({
+                          title: "Data inválida",
+                          description: "Não é possível agendar para datas passadas.",
                           variant: "destructive",
                         })
                       }
@@ -500,7 +546,12 @@ export default function ServiceScheduling() {
                   <div key={apt.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                     <span className="font-medium">{apt.name}</span>
                     <span className="text-sm text-gray-600">
-                      {new Date(apt.date).toLocaleDateString("pt-BR")} às {apt.time}
+                      {new Date(apt.date + "T00:00:00").toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}{" "}
+                      às {apt.time}
                     </span>
                   </div>
                 ))}
