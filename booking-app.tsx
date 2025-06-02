@@ -55,7 +55,7 @@ ${formData.observacoes ? `*Observações:* ${formData.observacoes}` : ""}
 
 Aguardo confirmação!`
 
-    const whatsappUrl = `https://wa.me/5547999999999?text=${encodeURIComponent(message)}`
+    const whatsappUrl = `https://wa.me/5547996960063?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
   }
 
