@@ -31,10 +31,9 @@ interface Appointment {
 
 const services = [
   "Instalação de Ar Condicionado",
+  "Manutenção de Ar Condicionado",
   "Reparo de Ar Condicionado",
-  "Limpeza de Ar Condicionado",
-  "Manutenção Preventiva",
-  "Conserto Micro-ondas",
+  "Manutenção Micro-ondas",
 ]
 
 const timeSlots = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
@@ -83,7 +82,7 @@ export default function ServiceScheduling() {
   const isWeekday = (dateString: string) => {
     const date = new Date(dateString)
     const day = date.getDay()
-    return day >= 1 && day <= 5 // Monday = 1, Friday = 5
+    return day >= 0 && day <= 6 // Sunday = 0, Saturday = 6 (todos os dias)
   }
 
   const getMinDate = () => {
@@ -181,14 +180,11 @@ export default function ServiceScheduling() {
     localStorage.setItem("appointments", JSON.stringify(updatedAppointments))
 
     // Generate WhatsApp message
-   const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!validateForm()) return
-    const message = encodeURIComponent(
-      `*Meu nome é *${name}* e gostaria de agendar um serviço.*\n\n` +
+    const message =
+      `*🔧 AGENDAMENTO DE SERVIÇO - ${formData.name.toUpperCase()}*\n\n` +
       `📅 *Data:* ${new Date(formData.date).toLocaleDateString("pt-BR")}\n` +
       `🕐 *Horário:* ${formData.time}\n` +
-      `👤 *Nome:* ${formData.name}\n` +
+      `👤 *Cliente:* ${formData.name}\n` +
       `📞 *Telefone:* ${formData.phone}\n` +
       `📍 *Endereço:*\n` +
       `${formData.address.street}, ${formData.address.number}${formData.address.complement ? `, ${formData.address.complement}` : ""}\n` +
@@ -196,9 +192,9 @@ export default function ServiceScheduling() {
       `CEP: ${formData.address.cep}\n` +
       `🔧 *Serviço:* ${formData.service}\n` +
       `${formData.observations ? `📝 *Observações:* ${formData.observations}\n` : ""}\n` +
-      `Aguardo confirmação😉`
+      `Gostaria de confirmar este agendamento.`
 
-    const whatsappUrl = `https://wa.me/5547996960063?text=${encodeURIComponent(message)}`
+    const whatsappUrl = `https://wa.me/554796960063?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
 
     // Reset form
@@ -409,7 +405,7 @@ export default function ServiceScheduling() {
                 <div className="space-y-2">
                   <Label htmlFor="date" className="text-lg font-semibold flex items-center gap-2">
                     <Calendar className="h-5 w-5" />
-                    Data (Segunda a Sexta)
+                    Data (Segunda a Domingo)
                   </Label>
                   <Input
                     id="date"
@@ -423,7 +419,7 @@ export default function ServiceScheduling() {
                       } else {
                         toast({
                           title: "Data inválida",
-                          description: "Atendemos apenas de segunda a sexta-feira.",
+                          description: "Atendemos todos os dias da semana.",
                           variant: "destructive",
                         })
                       }
